@@ -1,0 +1,9 @@
+# Ignore CIFAR-10 dataset files
+/data/
+/data/*
+!/.gitkeep  # Allow keeping an empty data directory if needed
+
+# Ignore PyTorch dataset cache
+__pycache__/
+*.pt
+*.pth
