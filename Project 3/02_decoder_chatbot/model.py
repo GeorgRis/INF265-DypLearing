@@ -1,13 +1,40 @@
 import torch
 import torch.nn as nn
+import math
 
 class DecoderBlock(nn.Module):
     def __init__(self, embed_size, num_heads, dropout):
         super().__init__()
-        # TODO: Implement this method
+        self.ln1 = nn.LayerNorm(embed_size)
+        self.attn = nn.MultiheadAttention(embed_dim=embed_size, num_heads=num_heads, batch_first=True)
+        self.dropout1 = nn.Dropout(dropout)
+
+        self.ln2 = nn.LayerNorm(embed_size)
+        self.mlp = nn.Sequential(
+            nn.Linear(embed_size, 4 * embed_size),
+            nn.GELU(),
+            nn.Linear(4 * embed_size, embed_size),
+        )
+        self.dropout2 = nn.Dropout(dropout)
 
     def forward(self, x, attn_mask, padding_mask):
-        # TODO: Implement this method
+        # Self-attention with residual and layer norm
+        norm_x = self.ln1(x)
+        attn_output, _ = self.attn(
+            norm_x, norm_x, norm_x,
+            attn_mask=attn_mask,
+            key_padding_mask=padding_mask,
+            need_weights=False,
+            is_causal=True
+        )
+        x = x + self.dropout1(attn_output)
+
+        # Feedforward network with residual and layer norm
+        norm_x = self.ln2(x)
+        ff_output = self.mlp(norm_x)
+        x = x + self.dropout2(ff_output)
+        return x
+
 
 
 class PositionalEncoding(nn.Module):
@@ -16,14 +43,21 @@ class PositionalEncoding(nn.Module):
     """
     def __init__(self, embed_size, max_len):
         super().__init__()
-        # TODO: Implement this method
-        # Use self.register_bufffer("positional_encoding", positional_encoding) to store the positional encoding (not a parameter)
+
+        position = torch.arange(0, max_len).unsqueeze(1)  # (max_len, 1)
+        div_term = torch.exp(torch.arange(0, embed_size, 2) * (-math.log(10000.0) / embed_size))
+        pe = torch.zeros(max_len, embed_size)
+        pe[:, 0::2] = torch.sin(position * div_term)  # even positions
+        pe[:, 1::2] = torch.cos(position * div_term)  # odd positions
+
+        pe = pe.unsqueeze(0)  # shape: (1, max_len, embed_size)
+        self.register_buffer("positional_encoding", pe)  # non-trainable
 
     def forward(self, x):
-        # TODO: Implement this method
-        # Remember to slice the positional encoding to match the length of the input sequence
-        # and to move the positional encoding to the device of the input tensor
-
+        # x shape: (batch_size, seq_len, embed_size)
+        seq_len = x.size(1)
+        pe = self.positional_encoding[:, :seq_len, :].to(x.device)
+        return x + pe
 
 class TransformerModel(nn.Module):
     def __init__(self, config):
@@ -66,8 +100,7 @@ class TransformerModel(nn.Module):
         """
         Generates an upper triangular mask to prevent attending to future tokens.
         """
-        # TODO: Implement this method
-        # You can use torch.ones and torch.triu to generate the mask and cast it to a boolean tensor with .bool()
+        return torch.triu(torch.ones(seq_len, seq_len), diagonal=1).bool()
 
 
 if __name__ == "__main__":
