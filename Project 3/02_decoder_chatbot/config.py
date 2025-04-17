@@ -19,7 +19,7 @@ config = SimpleNamespace(**{
     "sep_token": "[SEP]",
     "end_token": "[END]",
     "pad_token": "[PAD]",
-    "tokenizer_filename": "temp/tokenizer.json",
+    "tokenizer_filename": "temp\\tokenizer.json",
     
     # Model config
     "embed_size": 512,
@@ -34,8 +34,8 @@ config = SimpleNamespace(**{
     "dataloader_num_workers": 2,
     "lr": 1e-4,
     "num_epochs": 5,
-    "model_filename": "temp/model.pth",
-    "optimizer_filename": "temp/optimizer.pth",
+    "model_filename": "temp\\model.pth",
+    "optimizer_filename": "temp\\optimizer.pth",
     })
 
 

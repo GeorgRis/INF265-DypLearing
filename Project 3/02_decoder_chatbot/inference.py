@@ -1,10 +1,37 @@
 import torch
+import torch.nn.functional as F
+
 
 def greedy_sampling(last_token_logits):
-    # TODO: Implement greedy sampling (input is the logits of the last token, output is the selected token ID)
+    # TODO: Implement greedy sampling (input is the logits of the last token, output is the selected token ID) X
+    return torch.argmax(last_token_logits, dim=-1)
 
 def top_p_sampling(last_token_logits, p=0.95, temperature=0.7):
-    # TODO: Implement top-p sampling with temperature (input is the logits of the last token, output is the selected token ID)
+    # TODO: Implement top-p sampling with temperature (input is the logits of the last token, output is the selected token ID) X
+    # Apply temperature
+    probs = F.softmax(last_token_logits / temperature, dim=-1)
+
+    # Sort by probability
+    sorted_probs, sorted_indices = torch.sort(probs, descending=True)
+
+    # Compute cumulative probability
+    cumulative_probs = torch.cumsum(sorted_probs, dim=-1)
+
+    # Select top-p tokens
+    top_p_mask = cumulative_probs <= p
+    top_p_mask[..., 0] = True  # Always include at least one token
+
+    # Mask probabilities not in top-p
+    filtered_probs = sorted_probs * top_p_mask
+
+    # Renormalize
+    filtered_probs /= filtered_probs.sum()
+
+    # Sample
+    sampled_index = torch.multinomial(filtered_probs, 1)
+
+    # Return token ID (map back to original indices)
+    return sorted_indices[sampled_index]
 
 def sample_sequence(input_sequence, model, strategy, max_len, device, end_id, p=0.95, temperature=0.7):
     model.eval()

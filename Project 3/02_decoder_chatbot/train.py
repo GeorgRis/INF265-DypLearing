@@ -21,7 +21,7 @@ def train_model(config):
     model = TransformerModel(config)
     print(f"Number of parameters in the model: {get_num_params(model):,}")
     model = model.to(config.device)
-    model = torch.compile(model)
+    #model = torch.compile(model)
     optimizer = optim.AdamW(model.parameters(), lr=config.lr)
 
     if (

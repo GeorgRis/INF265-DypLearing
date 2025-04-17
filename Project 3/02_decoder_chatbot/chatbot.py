@@ -13,9 +13,17 @@ torch.classes.__path__ = []
 def load_model(config):
     model = TransformerModel(config)
     model = model.to(config.device)
-    model = torch.compile(model)
-    model.load_state_dict(torch.load(config.model_filename, weights_only=True, map_location=config.device))
+    
+    # change becasue compiled in train
+    # Load state dict with fallback for _orig_mod. prefix
+    state_dict = torch.load(config.model_filename, map_location=config.device)
+    if any(k.startswith("_orig_mod.") for k in state_dict):
+        # Remove _orig_mod. prefix from compiled model keys
+        state_dict = {k.replace("_orig_mod.", ""): v for k, v in state_dict.items()}
+
+    model.load_state_dict(state_dict)
     return model
+
 
 @st.cache_resource
 def load_tokenizer(config):
