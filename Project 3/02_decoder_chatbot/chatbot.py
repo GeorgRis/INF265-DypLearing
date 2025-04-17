@@ -14,7 +14,7 @@ def load_model(config):
     model = TransformerModel(config)
     model = model.to(config.device)
     
-    # change becasue compiled in train
+    # change because compiled in train, which gave me problem in question asking.
     # Load state dict with fallback for _orig_mod. prefix
     state_dict = torch.load(config.model_filename, map_location=config.device)
     if any(k.startswith("_orig_mod.") for k in state_dict):
