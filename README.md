@@ -1,10 +1,23 @@
-Repoet inneholder flere undermapper og filer:
+## Innhold
 
-Project 1/, Project 2/, Project 3/
-Inneholder Jupyter-notebooks for tre obligatoriske prosjekter. De dekker:
+Repoet er organisert som følger:
 
-Backpropagation og gradient descent
+- `Project 1/`  
+  Implementasjon av backpropagation og gradient descent fra bunnen.
+  
+- `Project 2/`  
+  Objektlokalisering ved hjelp av nevrale nettverk.
 
-Object localization/detection
+- `Project 3/`  
+  Sekvensmodellering med RNN, LSTM og attention-mekanismer.
 
-Sequence modeling (LLM, Attention)
+---
+
+## Læringsmål (fra INF265)
+
+- Forstå og implementere nevrale nettverk
+- Bruke deep learning på bilde- og tekstdata
+- Evaluere og forbedre modellresultater
+- Kritisk reflektere rundt modellvalg og generalisering
+
+---
